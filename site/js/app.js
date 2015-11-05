@@ -17,11 +17,4 @@ $(function () {
     ];
 
     new app.LibraryView(books);
-
-    jQuery.get('/api/books/', function(data, textStatus, jqXHR) {
-        console.log('Get response:');
-        console.dir(data);
-        console.log(textSatatus);
-        console.dir(jqXHR);
-    });
 });

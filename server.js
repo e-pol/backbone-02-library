@@ -29,12 +29,13 @@ app.listen(port, function () {
 });
 
 // Routes
-app.get('/api', function(request, response) {
+app.get('/api', function (request, response) {
     response.send('Library API is runnung');
 });
 
-app.get('/api/books', function(request, response) {
-    return BookModel.find( function(err, books) {
+// Get a list of all books
+app.get('/api/books', function (request, response) {
+    return BookModel.find(function (err, books) {
         if (!err) {
             return response.send(books);
         } else {
@@ -43,14 +44,147 @@ app.get('/api/books', function(request, response) {
     });
 });
 
+// Insert a new book
+app.post('/api/books', function (request, response) {
+    var book = new BookModel({
+        title: request.body.title,
+        author: request.body.author,
+        releaseDate: request.body.releaseDate,
+        keywords: request.body.keywords
+    });
+
+    book.save(function (err) {
+        if (!err) {
+            return console.log('created');
+        } else {
+            return console.log(err);
+        }
+    });
+    return response.send(book);
+});
+
+// Get a single book by id
+app.get('/api/books/:id', function (request, response) {
+    return BookModel.findById(request.params.id, function (err, book) {
+        if (!err) {
+            return response.send(book);
+        } else {
+            return console.log(err);
+        }
+    });
+});
+
+// Update a book
+app.put('/api/books/:id', function (request, response) {
+    console.log('Updating book ' + request.body.title);
+    return BookModel.findById(request.params.id, function (err, book) {
+        book.title = request.body.title;
+        book.author = request.body.author;
+        book.releaseDate = request.body.releaseDate;
+        book.keywords = request.body.keywords;
+
+        return book.save(function (err) {
+            if (!err) {
+                console.log('book updated');
+            } else {
+                console.log(err);
+            }
+
+            return response.send(book);
+        });
+    });
+});
+
+// Delete a book
+app.delete('/api/books/:id', function (request, response) {
+    console.log('Deleting book with id: ' + request.params.id);
+    return BookModel.findById(request.params.id, function (err, book) {
+        return book.remove(function (err) {
+            if (!err) {
+                console.log('Book removed');
+                return response.send('');
+            } else {
+                console.log(err);
+            }
+        });
+    });
+});
+
 // Connect to database
-mongoose.connect('mongodb://ep.bitnamiapp.com');
+mongoose.connect('mongodb://localhost/backbone_02_library');
+
+// Schemas
+var Keywords = new mongoose.Schema({
+    keyword: String
+});
 
 var Book = new mongoose.Schema({
     title: String,
     author: String,
-    releaseDate: Date
+    releaseDate: Date,
+    keywords: [Keywords]
 });
 
 // Models
 var BookModel = mongoose.model('Book', Book);
+
+/*
+ * Developer console test requests
+ *
+
+jQuery.get('api/books/', function (data, textStatus, jqXHR) {
+    console.log('Get response:');
+    console.dir(data);
+    console.log(textStatus);
+    console.dir(jqXHR);
+});
+
+jQuery.post('api/books', {
+    'title': 'JavaScript the good parts',
+    'author': 'Douglas Crockford',
+    'releaseDate': new Date(2008, 4, 1).getTime()
+}, function (data, textStatus, jqXHR) {
+    console.log('Post response:');
+    console.dir(data);
+    console.log(textStatus);
+    console.dir(jqXHR);
+});
+
+jQuery.ajax({
+   url: '/api/books/',
+   type: 'PUT',
+   data: {
+    'title': 'JavaScript The good parts',
+    'author': 'The legendary Douglas Crockford',
+    'releaseDate': new Date(2008, 4, 1).getTime()
+   },
+   success: function (data, textStatus, jqXHR) {
+    console.log('Post response:');
+    console.dir(data);
+    console.log(textStatus);
+    console.dir(jqXHR);
+   }
+});
+
+jQuery.ajax({
+   url: '/api/books',
+   type: 'POST',
+   data: {
+    'title': 'Secrets of the JavaScript Ninja',
+    'author': 'John Resig',
+    'releaseDate': new Date(2008, 3, 13).getTime(),
+    'keywords': [
+         {'keyword': 'JavaScript'},
+         {'keyword': 'Reference'}
+    ]
+   },
+   success: function (data, textStatus, jqXHR) {
+    console.log('Post response:');
+    console.dir(data);
+    console.log(textStatus);
+    console.dir(jqXHR);
+   }
+});
+
+ *
+ */
