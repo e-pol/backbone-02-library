@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Backbone.js library</title>
     <link rel="stylesheet" href="css/screen.css">
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
 </head>
 <body>
 
@@ -31,8 +32,9 @@
         <ul>
             <li><%= title %></li>
             <li><%= author %></li>
-            <li><%= releaseDate %></li>
-            <li><%= keywords %></li>
+            <li><%= $.formatDateTime('MM yy', new Date(releaseDate)) %></li>
+            <li><% _.each(keywords, function(keyobj) {%>
+                <%= keyobj.keyword %><% }); %></li>
         </ul>
 
         <button class="delete">Delete</button>
@@ -40,6 +42,8 @@
 
     <!-- dependencies -->
     <script src="js/lib/jquery-1.11.3.min.js"></script>
+    <script src="js/lib/jquery-ui.min.js"></script>
+    <script src="js/lib/jquery.formatDateTime.min.js"></script>
     <script src="js/lib/underscore-min.js"></script>
     <script src="js/lib/backbone-min.js"></script>
     <script src="js/models/book.js"></script>
